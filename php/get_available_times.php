@@ -1,5 +1,5 @@
 <?php
-// php/get_available_times.php - النسخة النهائية المصححة
+// php/get_available_times.php 
 include 'config.php';
 
 header('Content-Type: application/json; charset=utf-8');
