@@ -1,5 +1,5 @@
 <?php
-// login.php - الإصدار النهائي مع دعم المدينة
+// login.php 
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
