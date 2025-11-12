@@ -1,5 +1,5 @@
 <?php
-// config.php - النسخة المحسنة
+// config.php 
 ob_start();
 
 // رؤوس CORS و JSON
