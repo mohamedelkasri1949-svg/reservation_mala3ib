@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب - سبورت لاين</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .register-container {
+            display: flex;
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            min-height: 700px;
+        }
+
+        .welcome-section {
+            flex: 1;
+            background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+            color: white;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .register-section {
+            flex: 1;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #198754;
+        }
+
+        .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .welcome-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .features-list {
+            list-style: none;
+            margin: 30px 0;
+        }
+
+        .features-list li {
+            padding: 12px 0;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .features-list li i {
+            margin-left: 15px;
+            font-size: 1.3rem;
+            color: #ffd700;
+        }
+
+        .register-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .register-subtitle {
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 15px 20px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-control:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+            background: white;
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(25, 135, 84, 0.3);
+        }
+
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .login-link a {
+            color: #198754;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .login-link a:hover {
+            color: #146c43;
+            text-decoration: underline;
+        }
+
+        .sports-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+
+        .sports-icons i {
+            font-size: 2rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @media (max-width: 768px) {
+            .register-container {
+                flex-direction: column;
+                min-height: auto;
+            }
+            
+            .welcome-section, .register-section {
+                padding: 40px 20px;
+            }
+            
+            .welcome-title {
+                font-size: 2rem;
+            }
+            
+            .register-title {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <!-- قسم الترحيب -->
+        <div class="welcome-section">
+            <div class="logo">
+                <i class="fas fa-user-plus logo-icon"></i>
+                <h1 class="welcome-title">انضم إلى مجتمعنا</h1>
+                <p class="welcome-subtitle">
+                    سجل الآن وتمتع بجميع مزايا سبورت لاين
+                </p>
+            </div>
+
+            <ul class="features-list">
+                <li>
+                    <i class="fas fa-check-circle"></i>
+                    <span>حجز فوري للملاعب</span>
+                </li>
+                <li>
+                    <i class="fas fa-check-circle"></i>
+                    <span>تتبع حجوزاتك</span>
+                </li>
+                <li>
+                    <i class="fas fa-check-circle"></i>
+                    <span>تقييم الملاعب</span>
+                </li>
+                <li>
+                    <i class="fas fa-check-circle"></i>
+                    <span>عروض حصرية</span>
+                </li>
+                <li>
+                    <i class="fas fa-check-circle"></i>
+                    <span>إشعارات فورية</span>
+                </li>
+            </ul>
+
+            <div class="sports-icons">
+                <i class="fas fa-futbol"></i>
+                <i class="fas fa-basketball-ball"></i>
+                <i class="fas fa-volleyball-ball"></i>
+                <i class="fas fa-running"></i>
+            </div>
+        </div>
+
+        <!-- قسم إنشاء الحساب -->
+        <div class="register-section">
+            <div>
+                <h2 class="register-title">إنشاء حساب جديد</h2>
+                <p class="register-subtitle">انضم إلينا وابدأ رحلتك الرياضية</p>
+
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label class="form-label">الاسم الكامل</label>
+                        <input type="text" class="form-control" name="full_name" required 
+                               placeholder="أدخل اسمك الكامل">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">رقم الهاتف</label>
+                        <input type="tel" class="form-control" name="phone" required 
+                               placeholder="أدخل رقم هاتفك">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">البريد الإلكتروني</label>
+                        <input type="email" class="form-control" name="email" required 
+                               placeholder="أدخل بريدك الإلكتروني">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">كلمة المرور</label>
+                        <input type="password" class="form-control" name="password" required 
+                               placeholder="اختر كلمة مرور قوية">
+                    </div>
+
+                    <button type="button" class="btn btn-register" onclick="handleRegister()">
+                        <i class="fas fa-user-plus me-2"></i>إنشاء حساب
+                    </button>
+                </form>
+
+                <div class="login-link">
+                    <p>لديك حساب بالفعل؟ 
+                        <a href="login.html">تسجيل الدخول</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert-container" id="alertContainer"></div>
+
+    <script>
+        async function handleRegister() {
+            const form = document.getElementById('registerForm');
+            const submitBtn = form.querySelector('button');
+            const originalText = submitBtn.innerHTML;
+            
+            try {
+                // عرض حالة التحميل
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>جاري إنشاء الحساب...';
+                submitBtn.disabled = true;
+                
+                const formData = new FormData(form);
+                
+                const response = await fetch('php/register.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // ✅ تم التعديل: لا تسجيل دخول تلقائي
+                    showAlert('تم إنشاء الحساب بنجاح! جاري توجيهك لصفحة تسجيل الدخول...', 'success');
+                    
+                    // التوجيه لصفحة تسجيل الدخول بعد نجاح التسجيل
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    showAlert('خطأ: ' + data.message, 'error');
+                }
+            } catch (error) {
+                console.error('❌ خطأ في التسجيل:', error);
+                showAlert('حدث خطأ في الاتصال بالخادم', 'error');
+            } finally {
+                // إعادة تعيين الزر
+                submitBtn.innerHTML = '<i class="fas fa-user-plus me-2"></i>إنشاء حساب';
+                submitBtn.disabled = false;
+            }
+        }
+
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertClass = {
+                'success': 'alert-success',
+                'error': 'alert-danger',
+                'warning': 'alert-warning',
+                'info': 'alert-info'
+            }[type];
+            
+            const icon = {
+                'success': 'fa-check-circle',
+                'error': 'fa-exclamation-triangle',
+                'warning': 'fa-exclamation-circle',
+                'info': 'fa-info-circle'
+            }[type];
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert ${alertClass} alert-dismissible fade show`;
+            alertDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 9999;
+                min-width: 300px;
+            `;
+            
+            alertDiv.innerHTML = `
+                <i class="fas ${icon} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alertDiv);
+            
+            // إزالة التنبيه تلقائياً بعد 5 ثواني
+            setTimeout(() => {
+                if (alertDiv.parentElement) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        // السماح بالدخول بالزر Enter
+        document.getElementById('registerForm').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleRegister();
+            }
+        });
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

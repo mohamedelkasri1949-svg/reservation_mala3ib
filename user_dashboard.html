@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - سبورت لاين</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+        }
+        
+        /* شريط التنقل */
+        .nav-container {
+            background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+            padding: 1rem 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-brand {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .user-nav-section {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            border: 2px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .user-avatar:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+        
+        .user-name {
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            margin: 0 0.5rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-link:hover {
+            color: white;
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .nav-link.active {
+            color: white;
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .btn-logout {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(255,59,48,0.8);
+            transform: translateY(-2px);
+        }
+
+        /* تصميم لوحة التحكم */
+        .dashboard-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            border: none;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 2rem 1rem;
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #198754;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .booking-status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-confirmed { background: #d4edda; color: #155724; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+        .status-completed { background: #d1ecf1; color: #0c5460; }
+        
+        /* تحسينات إضافية */
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #198754;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .booking-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .booking-card:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+        
+        .btn-group-sm .btn {
+            border-radius: 8px;
+            font-size: 0.8rem;
+            padding: 0.25rem 0.75rem;
+        }
+        
+        /* تحسين التبويبات */
+        .nav-tabs .nav-link {
+            border: none;
+            color: #6c757d;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: #198754;
+            background-color: rgba(25, 135, 84, 0.1);
+            border-bottom: 3px solid #198754;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            color: #198754;
+            background-color: rgba(25, 135, 84, 0.05);
+        }
+        
+        @media (max-width: 768px) {
+            .nav-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .nav-link {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .user-name {
+                font-size: 0.9rem;
+            }
+            
+            .stat-card {
+                padding: 1.5rem 0.5rem;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- شريط التنقل -->
+    <nav class="nav-container">
+        <div class="container">
+            <div class="nav-content">
+                <!-- العلامة التجارية -->
+                <a href="index.html" class="nav-brand">
+                    <i class="fas fa-futbol"></i>
+                   سبورت لاين
+                </a>
+                
+                <!-- قسم المستخدم والروابط -->
+                <div class="user-nav-section">
+                    <!-- أيقونة المستخدم -->
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    
+                    <!-- اسم المستخدم -->
+                    <span class="user-name" id="userNameDisplay">مرحباً!</span>
+                    
+                    <!-- روابط التنقل -->
+                    <div class="nav-links">
+                        <a href="user_dashboard.html" class="nav-link active">
+                            <i class="fas fa-tachometer-alt"></i>
+                            لوحة التحكم
+                        </a>
+                        <a href="map.html" class="nav-link">
+                            <i class="fas fa-map-marked-alt"></i>
+                            الخريطة
+                        </a>
+                        <a href="booking_payment.htm" class="nav-link">
+                            <i class="fas fa-calendar-check"></i>
+                            حجز جديد
+                        </a>
+                    </div>
+                    
+                    <!-- زر تسجيل الخروج -->
+                    <button class="btn btn-logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        خروج
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- محتوى لوحة التحكم -->
+    <div class="container mt-4">
+        <!-- الإحصائيات -->
+        <div class="row mb-4" id="statsSection">
+            <div class="col-12">
+                <h4 class="text-success mb-4">
+                    <i class="fas fa-chart-bar me-2"></i>إحصائيات الحجوزات
+                </h4>
+                <div class="row" id="statsContainer">
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number">0</div>
+                            <div class="stat-label">إجمالي الحجوزات</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number">0</div>
+                            <div class="stat-label">حجوزات قادمة</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number">0</div>
+                            <div class="stat-label">حجوزات مكتملة</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number">0 درهم</div>
+                            <div class="stat-label">إجمالي المصروف</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- قائمة الحجوزات -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card dashboard-card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0 text-success">
+                            <i class="fas fa-calendar-check me-2"></i>حجوزاتي
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-tabs" id="bookingTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button">
+                                    <i class="fas fa-clock me-1"></i>القادمة
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button">
+                                    <i class="fas fa-history me-1"></i>السابقة
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button">
+                                    <i class="fas fa-list me-1"></i>جميع الحجوزات
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content mt-4" id="bookingTabsContent">
+                            <div class="tab-pane fade show active" id="upcoming" role="tabpanel">
+                                <div id="upcomingBookings">
+                                    <div class="text-center py-4">
+                                        <div class="loading-spinner mb-3"></div>
+                                        <p class="text-muted">جاري تحميل الحجوزات القادمة...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="history" role="tabpanel">
+                                <div id="historyBookings">
+                                    <div class="text-center py-4">
+                                        <div class="loading-spinner mb-3"></div>
+                                        <p class="text-muted">جاري تحميل الحجوزات السابقة...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="all" role="tabpanel">
+                                <div id="allBookings">
+                                    <div class="text-center py-4">
+                                        <div class="loading-spinner mb-3"></div>
+                                        <p class="text-muted">جاري تحميل جميع الحجوزات...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- أزرار إضافية -->
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <button class="btn btn-success btn-lg px-5" onclick="window.location.href='booking_payment.htm'">
+                    <i class="fas fa-plus me-2"></i>حجز جديد
+                </button>
+                <button class="btn btn-outline-primary btn-lg px-5 ms-2" onclick="window.location.href='map.html'">
+                    <i class="fas fa-map-marked-alt me-2"></i>عرض الخريطة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نموذج تفاصيل الحجز -->
+    <div class="modal fade" id="bookingDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تفاصيل الحجز</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="bookingDetailsContent">
+                    <!-- محتوى التفاصيل سيتم تحميله هنا -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نموذج إلغاء الحجز -->
+    <div class="modal fade" id="cancelBookingModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">إلغاء الحجز</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>هل أنت متأكد من أنك تريد إلغاء هذا الحجز؟</p>
+                    <p class="text-muted" id="cancelBookingInfo"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">تراجع</button>
+                    <button type="button" class="btn btn-danger" id="confirmCancelBtn">تأكيد الإلغاء</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

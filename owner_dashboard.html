@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم صاحب الملعب</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 15px;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+            color: white;
+            border: none;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        
+        .city-header {
+            background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .table-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .table th {
+            background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 0.6rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .table td {
+            padding: 0.7rem 0.6rem;
+            vertical-align: middle;
+            border-color: #f1f3f4;
+            font-size: 0.9rem;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-paid { 
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-pending { 
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-confirmed { 
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .badge-cancelled { 
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .badge-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-left: 8px;
+            font-size: 0.8rem;
+        }
+        
+        .loading-spinner {
+            width: 2rem;
+            height: 2rem;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #198754;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .nav-brand {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .revenue-card {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        /* شريط التنقل المصغر */
+        .navbar {
+            padding: 0.5rem 0;
+            margin-bottom: 1rem;
+        }
+        
+        .navbar-brand {
+            color: #000 !important;
+            font-weight: 600;
+        }
+        
+        .nav-link {
+            color: #000 !important;
+            font-weight: 500;
+        }
+        
+        .btn-outline-light {
+            border-color: #000;
+            color: #000;
+        }
+        
+        .btn-outline-light:hover {
+            background-color: #000;
+            color: #fff;
+        }
+
+        /* تصميمات جديدة للأزرار */
+        .btn-action {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            margin: 2px;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .btn-cancel {
+            background: #dc3545;
+            color: white;
+            border: none;
+        }
+
+        .btn-cancel:hover {
+            background: #c82333;
+            color: white;
+        }
+
+        .btn-cancel:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-complete {
+            background: #28a745;
+            color: white;
+            border: none;
+        }
+
+        .btn-complete:hover {
+            background: #218838;
+            color: white;
+        }
+
+        .btn-complete:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .hidden-row {
+            background-color: #f8f9fa !important;
+            opacity: 0.6;
+        }
+
+        .hidden-row td {
+            color: #6c757d !important;
+            text-decoration: line-through;
+        }
+
+        .completed-row {
+            background-color: #e8f5e8 !important;
+        }
+
+        .completed-row td {
+            color: #155724 !important;
+        }
+
+        .payment-cash {
+            border-left: 3px solid #28a745;
+        }
+
+        .payment-online {
+            border-left: 3px solid #007bff;
+        }
+
+        .alert-custom {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            min-width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideInDown 0.5s ease-out;
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateX(-50%) translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .btn-refresh {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-refresh:hover {
+            transform: rotate(180deg);
+        }
+
+        .actions-column {
+            min-width: 120px;
+        }
+    </style>
+</head>
+<body>
+    <!-- شريط التنقل المصغر -->
+    <nav class="navbar navbar-light glass-card">
+        <div class="container">
+            <span class="navbar-brand mb-0 h6">
+                <i class="fas fa-chart-line me-2"></i>لوحة التحكم
+            </span>
+            <div class="navbar-nav ms-auto d-flex align-items-center flex-row">
+                <span class="nav-link mx-2" id="ownerWelcome">مرحباً!</span>
+                <span class="badge bg-dark me-2" id="cityBadge"></span>
+                <button class="btn btn-outline-light btn-sm" onclick="logout()">
+                    <i class="fas fa-sign-out-alt me-1"></i> خروج
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- معلومات المدينة -->
+        <div class="city-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="mb-2">
+                        <i class="fas fa-city me-2"></i>
+                        <span id="cityName">لوحة تحكم المدينة</span>
+                    </h4>
+                    <p class="mb-0" id="cityStats">
+                        <i class="fas fa-spinner fa-spin me-2"></i>جاري تحميل الإحصائيات...
+                    </p>
+                </div>
+                <div class="col-md-4 text-left">
+                    <button class="btn btn-light btn-sm btn-refresh" onclick="refreshBookings()" id="refreshBtn">
+                        <i class="fas fa-sync-alt me-1"></i> تحديث
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- الإحصائيات -->
+        <div class="row mb-3">
+            <div class="col-md-3 col-6 mb-2">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalBookings">0</div>
+                    <div class="stat-label">إجمالي الحجوزات</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-2">
+                <div class="stat-card">
+                    <div class="stat-number" id="confirmedBookings">0</div>
+                    <div class="stat-label">حجوزات مؤكدة</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-2">
+                <div class="stat-card">
+                    <div class="stat-number" id="completedBookings">0</div>
+                    <div class="stat-label">مكتملة</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-2">
+                <div class="stat-card revenue-card">
+                    <div class="stat-number" id="totalRevenue">0</div>
+                    <div class="stat-label">الإيرادات (درهم)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- قائمة الحجوزات -->
+        <div class="glass-card">
+            <div class="card-header bg-transparent border-0 py-2">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h5 class="mb-0 text-dark">
+                            <i class="fas fa-calendar-check me-2 text-success"></i> الحجوزات
+                            <small class="text-muted ms-2" id="bookingsCount">(0 حجز)</small>
+                        </h5>
+                    </div>
+                    <div class="col-md-6 text-left">
+                        <div class="d-flex gap-2 justify-content-end">
+                            <button class="btn btn-success btn-sm btn-refresh" onclick="refreshBookings()">
+                                <i class="fas fa-sync-alt me-1"></i> تحديث
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-container">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>المستخدم</th>
+                                    <th>الملعب</th>
+                                    <th>التاريخ</th>
+                                    <th>الوقت</th>
+                                    <th>المبلغ</th>
+                                    <th>الدفع</th>
+                                    <th>حالة الدفع</th>
+                                    <th>الحالة</th>
+                                    <th class="actions-column">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookingsTable">
+                                <tr>
+                                    <td colspan="10" class="py-4">
+                                        <div class="loading-spinner mb-2"></div>
+                                        <p class="text-muted text-center">جاري تحميل البيانات...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let ownerData = null;
+let allBookings = [];
+let currentCancelBookingId = null;
+let currentCompleteBookingId = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 بدء تحميل لوحة تحكم المالك...');
+    loadOwnerData();
+});
+
+function loadOwnerData() {
+    const userData = localStorage.getItem('currentUser');
+    if (!userData) {
+        console.log('❌ لا يوجد مستخدم مسجل - التوجيه إلى تسجيل الدخول');
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    try {
+        ownerData = JSON.parse(userData);
+        console.log('✅ بيانات المالك:', ownerData);
+        
+        if (ownerData.role !== 'owner') {
+            console.log('❌ المستخدم ليس مالك - التوجيه إلى الخريطة');
+            window.location.href = 'map.html';
+            return;
+        }
+        
+        document.getElementById('ownerWelcome').textContent = `مرحباً ${ownerData.name}`;
+        document.getElementById('cityName').textContent = `لوحة تحكم ${ownerData.city}`;
+        document.getElementById('cityBadge').textContent = ownerData.city;
+        
+        loadRealData();
+    } catch (error) {
+        console.error('❌ خطأ في تحليل بيانات المستخدم:', error);
+        window.location.href = 'login.html';
+    }
+}
+
+function loadRealData() {
+    console.log('📊 جاري تحميل بيانات الحجوزات...');
+    document.getElementById('cityStats').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>جاري تحميل البيانات...';
+
+    // إضافة تأثير التحميل على زر التحديث
+    const refreshBtn = document.querySelector('.btn-refresh');
+    refreshBtn.disabled = true;
+    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> جاري التحديث';
+
+    fetch('php/owner_dashboard.php')
+    .then(res => {
+        console.log('📡 حالة الاستجابة:', res.status, res.statusText);
+        return res.json();
+    })
+    .then(data => {
+        console.log('✅ بيانات الحجوزات:', data);
+        if (data.success) {
+            allBookings = data.data;
+            displayOwnerBookings(allBookings);
+            updateOwnerStats(allBookings);
+            
+            const paidCount = allBookings.filter(b => b.payment_status === 'paid').length;
+            const activeCount = allBookings.filter(b => b.status === 'confirmed').length;
+            const completedCount = allBookings.filter(b => b.status === 'completed').length;
+            document.getElementById('cityStats').textContent = 
+                `${allBookings.length} حجز • ${paidCount} مدفوع • ${activeCount} نشط • ${completedCount} مكتمل`;
+        } else {
+            console.error('❌ خطأ من الخادم:', data.message);
+            displayNoData();
+        }
+    })
+    .catch(err => {
+        console.error('❌ خطأ في تحميل البيانات:', err);
+        displayNoData();
+    })
+    .finally(() => {
+        // إعادة تمكين زر التحديث
+        refreshBtn.disabled = false;
+        refreshBtn.innerHTML = '<i class="fas fa-sync-alt me-1"></i> تحديث';
+    });
+}
+
+function displayOwnerBookings(bookings) {
+    const tbody = document.getElementById('bookingsTable');
+    
+    if (bookings.length === 0) {
+        displayNoData();
+        return;
+    }
+
+    // فرز الحجوزات: الحجوزات الملغاة في الأسفل، المكتملة في الأعلى
+    const sortedBookings = [...bookings].sort((a, b) => {
+        if (a.status === 'cancelled' && b.status !== 'cancelled') return 1;
+        if (a.status !== 'cancelled' && b.status === 'cancelled') return -1;
+        if (a.status === 'completed' && b.status !== 'completed') return -1;
+        if (a.status !== 'completed' && b.status === 'completed') return 1;
+        return new Date(b.reservation_date) - new Date(a.reservation_date);
+    });
+
+    tbody.innerHTML = sortedBookings.map(b => `
+        <tr class="${b.status === 'cancelled' ? 'hidden-row' : ''} ${b.status === 'completed' ? 'completed-row' : ''} ${b.payment_method === 'cash' ? 'payment-cash' : 'payment-online'}">
+            <td class="fw-bold">#${b.id}</td>
+            <td>
+                <div class="d-flex align-items-center">
+                    <div class="user-avatar">
+                        ${b.user_name ? b.user_name.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                    <div>
+                        <div class="fw-bold">${b.user_name || 'مستخدم'}</div>
+                        <small class="text-muted">${b.user_phone || ''}</small>
+                    </div>
+                </div>
+            </td>
+            <td class="fw-bold">${b.field_name}</td>
+            <td>${formatDate(b.reservation_date)}</td>
+            <td>${b.start_time} - ${b.end_time}</td>
+            <td class="fw-bold text-success">${b.total_price} درهم</td>
+            <td>
+                ${b.payment_method === 'online' ? 
+                    '<i class="fas fa-credit-card text-primary" title="دفع إلكتروني"></i>' : 
+                    '<i class="fas fa-money-bill-wave text-success" title="دفع نقدي"></i>'}
+                <small class="d-block text-muted">${b.payment_method === 'online' ? 'إلكتروني' : 'نقدي'}</small>
+            </td>
+            <td>
+                <span class="status-badge ${getPaymentStatusClass(b.payment_status)}">
+                    ${getPaymentStatusText(b.payment_status)}
+                </span>
+            </td>
+            <td>
+                <span class="status-badge ${getStatusClass(b.status)}">
+                    ${getStatusText(b.status)}
+                </span>
+            </td>
+            <td>
+                <div class="d-flex flex-column gap-1">
+                    ${b.status !== 'cancelled' && b.status !== 'completed' ? `
+                        ${b.payment_method === 'cash' && b.payment_status === 'pending' ? `
+                            <button class="btn btn-complete btn-action" onclick="openCompleteModal(${b.id}, '${b.user_name}', '${b.field_name}', '${b.reservation_date}', '${b.start_time}', '${b.end_time}', ${b.total_price})"
+                                    title="تأكيد استلام الدفع النقدي">
+                                <i class="fas fa-check-circle me-1"></i>تم الدفع
+                            </button>
+                        ` : ''}
+                        
+                        <button class="btn btn-cancel btn-action" onclick="openCancelModal(${b.id}, '${b.user_name}', '${b.field_name}', '${b.reservation_date}', '${b.start_time}', '${b.end_time}')" 
+                                ${isPastBooking(b.reservation_date, b.start_time) ? 'disabled' : ''}
+                                title="${isPastBooking(b.reservation_date, b.start_time) ? 'لا يمكن إلغاء الحجز المنتهي' : 'إلغاء الحجز'}">
+                            <i class="fas fa-times"></i>
+                            ${isPastBooking(b.reservation_date, b.start_time) ? 'منتهي' : 'إلغاء'}
+                        </button>
+                    ` : `
+                        <span class="text-muted small text-center">
+                            <i class="fas ${b.status === 'completed' ? 'fa-check-circle text-success' : 'fa-ban'} me-1"></i>
+                            ${b.status === 'completed' ? 'مكتمل' : 'ملغى'}
+                        </span>
+                    `}
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    console.log(`✅ تم عرض ${bookings.length} حجز`);
+}
+
+function displayNoData() {
+    const tbody = document.getElementById('bookingsTable');
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="10" class="py-4 text-center">
+                <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                <p class="text-muted mb-0">لم يتم تسجيل أي حجوزات في مدينة ${ownerData.city} بعد</p>
+                <button class="btn btn-success btn-sm mt-2" onclick="window.location.href='map.html'">
+                    <i class="fas fa-plus me-1"></i>عرض الملاعب
+                </button>
+            </td>
+        </tr>`;
+    
+    document.getElementById('cityStats').textContent = 'لا توجد حجوزات';
+    updateOwnerStats([]);
+}
+
+function updateOwnerStats(bookings) {
+    const totalBookings = bookings.length;
+    const confirmedBookings = bookings.filter(b => b.status === 'confirmed').length;
+    const completedBookings = bookings.filter(b => b.status === 'completed').length;
+    const totalRevenue = bookings
+        .filter(b => b.payment_status === 'paid' || b.status === 'completed')
+        .reduce((sum, b) => sum + parseFloat(b.total_price || 0), 0);
+
+    document.getElementById('totalBookings').textContent = totalBookings;
+    document.getElementById('confirmedBookings').textContent = confirmedBookings;
+    document.getElementById('completedBookings').textContent = completedBookings;
+    document.getElementById('totalRevenue').textContent = totalRevenue.toFixed(0);
+    
+    document.getElementById('bookingsCount').textContent = `(${totalBookings} حجز)`;
+
+    console.log(`📊 الإحصائيات: ${totalBookings} إجمالي, ${confirmedBookings} مؤكد, ${completedBookings} مكتمل, ${totalRevenue} إيرادات`);
+}
+
+function formatDate(dateString) {
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ar-EG', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+    } catch (error) {
+        console.error('❌ خطأ في تنسيق التاريخ:', error);
+        return dateString;
+    }
+}
+
+function getPaymentStatusClass(status) {
+    const classes = { 
+        paid: 'badge-paid', 
+        pending: 'badge-pending',
+        failed: 'badge-cancelled'
+    };
+    return classes[status] || 'badge-pending';
+}
+
+function getPaymentStatusText(status) {
+    const texts = { 
+        paid: 'مدفوع', 
+        pending: 'بانتظار الدفع',
+        failed: 'فاشل'
+    };
+    return texts[status] || status;
+}
+
+function getStatusClass(status) {
+    const classes = { 
+        pending: 'badge-pending', 
+        confirmed: 'badge-confirmed', 
+        completed: 'badge-completed', 
+        cancelled: 'badge-cancelled' 
+    };
+    return classes[status] || 'badge-pending';
+}
+
+function getStatusText(status) {
+    const texts = { 
+        pending: 'في الانتظار', 
+        confirmed: 'مؤكد', 
+        completed: 'مكتمل', 
+        cancelled: 'ملغى' 
+    };
+    return texts[status] || status;
+}
+
+function isPastBooking(date, time) {
+    try {
+        const bookingDateTime = new Date(`${date}T${time}`);
+        const now = new Date();
+        return bookingDateTime < now;
+    } catch (error) {
+        console.error('❌ خطأ في التحقق من وقت الحجز:', error);
+        return false;
+    }
+}
+
+function openCompleteModal(bookingId, userName, fieldName, date, startTime, endTime, totalPrice) {
+    currentCompleteBookingId = bookingId;
+    
+    // تنظيف البيانات من الأحرف الخاصة
+    userName = userName.replace(/'/g, "\\'");
+    fieldName = fieldName.replace(/'/g, "\\'");
+    
+    const modalContent = `
+        <div class="modal-header">
+            <h5 class="modal-title text-success">
+                <i class="fas fa-check-circle me-2"></i>تأكيد استلام الدفع
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            <div class="alert alert-success">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>ملاحظة:</strong> تأكيد استلام المبلغ النقدي من العميل
+            </div>
+            
+            <div class="booking-info p-3 border rounded">
+                <h6>معلومات الحجز:</h6>
+                <p><strong>المستخدم:</strong> ${userName}</p>
+                <p><strong>الملعب:</strong> ${fieldName}</p>
+                <p><strong>التاريخ:</strong> ${formatDate(date)}</p>
+                <p><strong>الوقت:</strong> ${startTime} - ${endTime}</p>
+                <p><strong>المبلغ المستلم:</strong> <span class="fw-bold text-success">${totalPrice} درهم</span></p>
+                <p><strong>رقم الحجز:</strong> #${bookingId}</p>
+            </div>
+            
+            <div class="mt-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="confirmPayment">
+                    <label class="form-check-label" for="confirmPayment">
+                        أؤكد أنني استلمت المبلغ النقدي من العميل
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">تراجع</button>
+            <button type="button" class="btn btn-success" id="confirmCompleteBtn" onclick="confirmCompleteBooking()" disabled>
+                <i class="fas fa-check me-1"></i>تأكيد الاستلام
+            </button>
+        </div>
+    `;
+    
+    // إنشاء المودال ديناميكياً إذا لم يكن موجوداً
+    let modal = document.getElementById('completeBookingModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.id = 'completeBookingModal';
+        modal.innerHTML = `
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    ${modalContent}
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // إضافة حدث للتأكيد
+        modal.addEventListener('shown.bs.modal', function() {
+            const confirmCheckbox = document.getElementById('confirmPayment');
+            const confirmBtn = document.getElementById('confirmCompleteBtn');
+            
+            confirmCheckbox.addEventListener('change', function() {
+                confirmBtn.disabled = !this.checked;
+            });
+        });
+    } else {
+        modal.querySelector('.modal-content').innerHTML = modalContent;
+    }
+    
+    // عرض المودال
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    
+    console.log(`💰 فتح نافذة تأكيد الدفع للحجز #${bookingId}`);
+}
+
+function openCancelModal(bookingId, userName, fieldName, date, startTime, endTime) {
+    currentCancelBookingId = bookingId;
+    
+    // تنظيف البيانات من الأحرف الخاصة
+    userName = userName.replace(/'/g, "\\'");
+    fieldName = fieldName.replace(/'/g, "\\'");
+    
+    const modalContent = `
+        <div class="modal-header">
+            <h5 class="modal-title text-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>تأكيد إلغاء الحجز
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            <div class="alert alert-warning">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>تنبيه:</strong> هذا الإجراء لا يمكن التراجع عنه
+            </div>
+            
+            <div class="booking-info p-3 border rounded">
+                <h6>معلومات الحجز:</h6>
+                <p><strong>المستخدم:</strong> ${userName}</p>
+                <p><strong>الملعب:</strong> ${fieldName}</p>
+                <p><strong>التاريخ:</strong> ${formatDate(date)}</p>
+                <p><strong>الوقت:</strong> ${startTime} - ${endTime}</p>
+                <p><strong>رقم الحجز:</strong> #${bookingId}</p>
+            </div>
+            
+            <div class="mt-3">
+                <label for="cancelReason" class="form-label">سبب الإلغاء (اختياري):</label>
+                <textarea class="form-control" id="cancelReason" rows="2" placeholder="أدخل سبب الإلغاء إذا رغبت..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">تراجع</button>
+            <button type="button" class="btn btn-danger" onclick="confirmCancelBooking()">
+                <i class="fas fa-check me-1"></i>تأكيد الإلغاء
+            </button>
+        </div>
+    `;
+    
+    // إنشاء المودال ديناميكياً إذا لم يكن موجوداً
+    let modal = document.getElementById('cancelBookingModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.id = 'cancelBookingModal';
+        modal.innerHTML = `
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    ${modalContent}
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    } else {
+        modal.querySelector('.modal-content').innerHTML = modalContent;
+    }
+    
+    // عرض المودال
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    
+    console.log(`📝 فتح نافذة إلغاء الحجز #${bookingId}`);
+}
+
+async function confirmCompleteBooking() {
+    if (!currentCompleteBookingId) {
+        showAlert('لم يتم تحديد حجز للتأكيد', 'error');
+        return;
+    }
+    
+    try {
+        console.log(`🔄 محاولة تأكيد استلام الدفع للحجز #${currentCompleteBookingId}`);
+        
+        const formData = new FormData();
+        formData.append('action', 'complete_booking');
+        formData.append('booking_id', currentCompleteBookingId);
+
+        const response = await fetch('php/owner_dashboard.php', {
+            method: 'POST',
+            body: formData
+        });
+
+        // التحقق من نوع المحتوى أولاً
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.error('❌ الخادم أرجع HTML بدلاً من JSON:', text.substring(0, 500));
+            throw new Error('استجابة غير صالحة من الخادم - تأكد من أن الملف PHP يعمل بشكل صحيح');
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+            showAlert('تم تأكيد استلام الدفع بنجاح', 'success');
+            console.log(`✅ تم تأكيد استلام الدفع للحجز #${currentCompleteBookingId} بنجاح`);
+            
+            // إغلاق المودال
+            const modal = bootstrap.Modal.getInstance(document.getElementById('completeBookingModal'));
+            if (modal) {
+                modal.hide();
+            }
+            
+            // إعادة تحميل البيانات بعد ثانية
+            setTimeout(() => {
+                refreshBookings();
+            }, 1000);
+        } else {
+            throw new Error(data.message || 'فشل في تأكيد استلام الدفع');
+        }
+    } catch (error) {
+        console.error('❌ خطأ في تأكيد استلام الدفع:', error);
+        showAlert('فشل في تأكيد استلام الدفع: ' + error.message, 'error');
+    }
+}
+
+async function confirmCancelBooking() {
+    if (!currentCancelBookingId) {
+        showAlert('لم يتم تحديد حجز للإلغاء', 'error');
+        return;
+    }
+    
+    const reason = document.getElementById('cancelReason')?.value || '';
+    
+    try {
+        console.log(`🔄 محاولة إلغاء الحجز #${currentCancelBookingId}`);
+        
+        const formData = new FormData();
+        formData.append('action', 'cancel_booking');
+        formData.append('booking_id', currentCancelBookingId);
+        formData.append('reason', reason);
+
+        const response = await fetch('php/owner_dashboard.php', {
+            method: 'POST',
+            body: formData
+        });
+
+        // التحقق من نوع المحتوى أولاً
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.error('❌ الخادم أرجع HTML بدلاً من JSON:', text.substring(0, 500));
+            throw new Error('استجابة غير صالحة من الخادم - تأكد من أن الملف PHP يعمل بشكل صحيح');
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+            showAlert('تم إلغاء الحجز بنجاح', 'success');
+            console.log(`✅ تم إلغاء الحجز #${currentCancelBookingId} بنجاح`);
+            
+            // إغلاق المودال
+            const modal = bootstrap.Modal.getInstance(document.getElementById('cancelBookingModal'));
+            if (modal) {
+                modal.hide();
+            }
+            
+            // إعادة تحميل البيانات بعد ثانية
+            setTimeout(() => {
+                refreshBookings();
+            }, 1000);
+        } else {
+            throw new Error(data.message || 'فشل في إلغاء الحجز');
+        }
+    } catch (error) {
+        console.error('❌ خطأ في إلغاء الحجز:', error);
+        showAlert('فشل في إلغاء الحجز: ' + error.message, 'error');
+    }
+}
+
+function showAlert(message, type = 'info') {
+    // إزالة أي تنبيهات سابقة
+    const existingAlerts = document.querySelectorAll('.alert-custom');
+    existingAlerts.forEach(alert => alert.remove());
+
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert-custom alert alert-${type} alert-dismissible fade show`;
+    
+    const icon = {
+        'success': 'fa-check-circle',
+        'error': 'fa-exclamation-triangle',
+        'warning': 'fa-exclamation-circle',
+        'info': 'fa-info-circle'
+    }[type];
+    
+    alertDiv.innerHTML = `
+        <i class="fas ${icon} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    // إغلاق التنبيه تلقائياً بعد 5 ثواني
+    setTimeout(() => {
+        if (alertDiv.parentElement) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+function refreshBookings() {
+    console.log('🔄 تحديث البيانات...');
+    loadRealData();
+}
+
+function logout() {
+    if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+        console.log('🚪 تسجيل الخروج...');
+        localStorage.removeItem('currentUser');
+        window.location.href = 'login.html';
+    }
+}
+
+// تحديث تلقائي كل دقيقتين
+setInterval(() => {
+    if (document.visibilityState === 'visible') {
+        console.log('🔄 تحديث تلقائي للبيانات...');
+        refreshBookings();
+    }
+}, 120000);
+
+// إضافة تأثير عند التحميل
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ لوحة تحكم المالك جاهزة');
+});
+</script>
+</body>
+</html>

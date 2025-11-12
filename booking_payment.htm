@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إتمام الحجز والدفع - سبورت لاين</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body { font-family: 'Tajawal', sans-serif; background-color: #f9fafb; }
+.booking-card { border: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+.time-slot { border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; margin: 5px; cursor: pointer; transition: all 0.3s; text-align:center; }
+.time-slot:hover { border-color: #198754; background-color: #f8fff9; }
+.time-slot.selected { border-color: #198754; background-color: #198754; color: white; }
+.payment-card { border: 2px solid #e9ecef; border-radius: 15px; transition: all 0.3s; cursor: pointer; }
+.payment-card:hover, .payment-card.selected { border-color: #198754; background-color: #f8fff9; }
+.payment-card.selected { border-width: 3px; }
+.step-indicator { display: flex; justify-content: space-between; margin-bottom: 30px; }
+.step { text-align: center; flex: 1; }
+.step-number { width: 40px; height: 40px; border-radius: 50%; background: #e9ecef; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold; }
+.step.active .step-number, .step.completed .step-number { background: #198754; color: white; }
+.alert-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; min-width: 300px; display: none; } /* إخفاء الإشعارات */
+.loading-spinner { width: 2rem; height: 2rem; border: 3px solid #f3f3f3; border-top: 3px solid #198754; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.error-message { color: #dc3545; font-size: 0.875rem; margin-top: 5px; display: none; }
+</style>
+</head>
+<body>
+<nav class="navbar navbar-dark bg-success">
+<div class="container">
+<a class="navbar-brand" href="map.html"><i class="fas fa-futbol me-2"></i>سبورت لاين - إتمام الحجز والدفع</a>
+</div>
+</nav>
+
+<div class="container mt-4">
+<div class="step-indicator">
+<div class="step active" id="step1"><div class="step-number">1</div><div>تفاصيل الحجز</div></div>
+<div class="step" id="step2"><div class="step-number">2</div><div>طريقة الدفع</div></div>
+<div class="step" id="step3"><div class="step-number">3</div><div>تأكيد الحجز</div></div>
+</div>
+
+<div class="row justify-content-center">
+<div class="col-md-8">
+<div class="card booking-card">
+<div class="card-header bg-success text-white">
+<h5 class="mb-0"><i class="fas fa-calendar-check me-2"></i>إتمام الحجز والدفع</h5>
+</div>
+<div class="card-body">
+
+<!-- الخطوة 1 -->
+<div id="step1-content">
+<div id="fieldInfo" class="alert alert-info">
+<div class="spinner-border spinner-border-sm me-2"></div>جاري تحميل معلومات الملعب...
+</div>
+
+<div class="mb-4">
+<label class="form-label fw-bold">اختر التاريخ:</label>
+<input type="date" class="form-control" id="reservationDate" disabled>
+<div class="error-message" id="dateError">يرجى اختيار التاريخ</div>
+</div>
+
+<div class="mb-4" id="timeSlotsSection" style="display:none;">
+<label class="form-label fw-bold">اختر الوقت:</label>
+<div id="timeSlots" class="row"></div>
+<div class="error-message" id="timeError">يرجى اختيار الوقت</div>
+</div>
+
+<div class="mb-4" id="durationSection" style="display:none;">
+<label class="form-label fw-bold">عدد الساعات:</label>
+<select class="form-select" id="duration">
+<option value="1">1 ساعة</option>
+<option value="2">2 ساعات</option>
+<option value="3">3 ساعات</option>
+<option value="4">4 ساعات</option>
+</select>
+</div>
+
+<div class="alert alert-warning" id="bookingSummary" style="display:none;">
+<h6><i class="fas fa-receipt me-2"></i>ملخص الحجز:</h6>
+<div id="summaryDetails"></div>
+</div>
+
+<div class="d-grid gap-2">
+<button class="btn btn-success" id="nextToPayment" onclick="nextToPayment()" disabled>التالي إلى الدفع <i class="fas fa-arrow-left ms-2"></i></button>
+<button class="btn btn-outline-secondary" onclick="window.history.back()"><i class="fas fa-arrow-right me-2"></i>رجوع</button>
+</div>
+</div>
+
+<!-- الخطوة 2 -->
+<div id="step2-content" style="display:none;">
+<div class="mb-4">
+<h6>اختر طريقة الدفع:</h6>
+<div class="row">
+<div class="col-md-6 mb-3">
+<div class="card payment-card" onclick="selectPayment('cash')" id="cashCard">
+<div class="card-body text-center">
+<i class="fas fa-money-bill-wave fa-2x text-success mb-2"></i>
+<h6>الدفع نقداً</h6>
+<small class="text-muted">الدفع في الموقع</small>
+</div>
+</div>
+</div>
+<div class="col-md-6 mb-3">
+<div class="card payment-card" onclick="selectPayment('online')" id="onlineCard">
+<div class="card-body text-center">
+<i class="fas fa-credit-card fa-2x text-primary mb-2"></i>
+<h6>الدفع الإلكتروني</h6>
+<small class="text-muted">الدفع عبر البطاقة البنكية</small>
+</div>
+</div>
+</div>
+</div>
+<div class="error-message" id="paymentError">يرجى اختيار طريقة الدفع</div>
+</div>
+
+<div id="onlinePaymentForm" style="display:none;">
+<div class="card">
+<div class="card-header"><h6 class="mb-0">معلومات البطاقة</h6></div>
+<div class="card-body">
+<div class="row">
+<div class="col-12 mb-3">
+<label class="form-label">رقم البطاقة</label>
+<input type="text" class="form-control" placeholder="1234 5678 9012 3456" id="cardNumber" maxlength="19">
+<div class="error-message" id="cardError">يرجى إدخال رقم بطاقة صحيح</div>
+</div>
+<div class="col-md-6 mb-3">
+<label class="form-label">تاريخ الانتهاء</label>
+<input type="text" class="form-control" placeholder="MM/YY" id="cardExpiry" maxlength="5">
+</div>
+<div class="col-md-6 mb-3">
+<label class="form-label">رمز الأمان</label>
+<input type="text" class="form-control" placeholder="CVV" id="cardCvv" maxlength="3">
+</div>
+<div class="col-12 mb-3">
+<label class="form-label">اسم حامل البطاقة</label>
+<input type="text" class="form-control" placeholder="اسم حامل البطاقة" id="cardName">
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="d-grid gap-2">
+<button class="btn btn-success" id="confirmPaymentBtn" onclick="processPayment()" disabled><i class="fas fa-lock me-2"></i>تأكيد الحجز والدفع</button>
+<button class="btn btn-outline-secondary" onclick="backToBooking()"><i class="fas fa-arrow-right me-2"></i>رجوع</button>
+</div>
+</div>
+
+<!-- الخطوة 3 -->
+<div id="step3-content" style="display:none;">
+<div id="confirmationContent"></div>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
+<!-- حاوية التنبيهات (مخفية) -->
+<div class="alert-container" id="alertContainer"></div>
+
+<script>
+let currentField = null;
+let selectedTimeSlot = null;
+let selectedDate = null;
+let selectedPaymentMethod = '';
+let bookingData = {};
+
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const fieldId = urlParams.get('field_id');
+
+    if (!fieldId) {
+        showPageError('⚠️ لم يتم اختيار ملعب بعد', 'يرجى اختيار ملعب من الخريطة أو من قائمة الملاعب للمتابعة في عملية الحجز.');
+        return;
+    }
+
+    fetchFields(fieldId);
+
+    document.getElementById('reservationDate').addEventListener('change', function(e) {
+        selectedDate = e.target.value;
+        hideError('dateError');
+        if(selectedDate) {
+            loadAvailableSlots();
+        }
+    });
+
+    document.getElementById('duration').addEventListener('change', updateBookingSummary);
+});
+
+function showPageError(title, message) {
+    document.getElementById('fieldInfo').innerHTML = `
+        <div class="alert alert-warning">
+            <h6>${title}</h6>
+            <p>${message}</p>
+            <div class="mt-3 text-center">
+                <a href="map.html" class="btn btn-success"><i class="fas fa-map-marker-alt me-1"></i> عرض الملاعب على الخريطة</a>
+            </div>
+        </div>
+    `;
+    document.getElementById('reservationDate').disabled = true;
+}
+
+function fetchFields(fieldId){
+    document.getElementById('fieldInfo').innerHTML = `
+        <div class="text-center py-2">
+            <div class="loading-spinner mb-2"></div>
+            <p class="mb-0">جاري تحميل معلومات الملعب...</p>
+        </div>
+    `;
+
+    fetch('php/get_fields.php')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            currentField = data.data.find(f => f.id == fieldId);
+            if (currentField) {
+                displayFieldInfo();
+                document.getElementById('reservationDate').disabled = false;
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('reservationDate').min = today;
+            } else {
+                showError('الملعب المطلوب غير موجود في القائمة');
+            }
+        } else {
+            showError('خطأ في تحميل البيانات: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('❌ خطأ في جلب البيانات:', error);
+        showError('فشل في تحميل بيانات الملعب');
+    });
+}
+
+function displayFieldInfo(){
+    document.getElementById('fieldInfo').innerHTML = `
+        <div class="field-info">
+            <h6 class="text-success mb-3">${currentField.name}</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-2"><strong><i class="fas fa-map-marker-alt me-2 text-muted"></i>المدينة:</strong> ${currentField.city}</p>
+                    <p class="mb-2"><strong><i class="fas fa-location-dot me-2 text-muted"></i>العنوان:</strong> ${currentField.address}</p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-2"><strong><i class="fas fa-tag me-2 text-muted"></i>السعر:</strong> <span class="text-success fw-bold">${currentField.price_per_hour} درهم/ساعة</span></p>
+                    <p class="mb-0"><strong><i class="fas fa-futbol me-2 text-muted"></i>الرياضة:</strong> ${currentField.category_name}</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function loadAvailableSlots(){
+    if (!currentField || !selectedDate) return;
+    
+    const timeSlotsSection = document.getElementById('timeSlotsSection');
+    const timeSlots = document.getElementById('timeSlots');
+    
+    timeSlotsSection.style.display = 'block';
+    timeSlots.innerHTML = `
+        <div class="col-12 text-center py-4">
+            <div class="loading-spinner mb-3"></div>
+            <p class="text-muted mb-0">جاري تحميل الأوقات المتاحة...</p>
+        </div>
+    `;
+
+    fetch(`php/get_available_times.php?field_id=${currentField.id}&date=${selectedDate}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.data.length === 0) {
+                timeSlots.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-warning text-center py-4">
+                            <i class="fas fa-clock fa-2x mb-3 text-warning"></i>
+                            <h6>لا توجد أوقات متاحة</h6>
+                            <p class="text-muted mb-0">لا توجد أوقات متاحة لهذا التاريخ، يرجى اختيار تاريخ آخر</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                timeSlots.innerHTML = data.data.map(slot => `
+                    <div class="col-md-4 mb-3">
+                        <div class="time-slot" onclick="selectTimeSlot('${slot.start}', '${slot.end}', this)">
+                            <strong class="d-block">${slot.start} - ${slot.end}</strong>
+                            <small class="text-success">${slot.price} درهم/ساعة</small>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        } else {
+            timeSlots.innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-danger text-center py-4">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        ${data.message}
+                    </div>
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('❌ خطأ في تحميل الأوقات:', error);
+        timeSlots.innerHTML = `
+            <div class="col-12">
+                <div class="alert alert-danger text-center py-4">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                    <h6>فشل في تحميل الأوقات</h6>
+                    <p class="text-muted mb-0">تعذر تحميل الأوقات المتاحة، يرجى المحاولة مرة أخرى</p>
+                </div>
+            </div>
+        `;
+    });
+}
+
+function selectTimeSlot(start, end, element){
+    document.querySelectorAll('.time-slot').forEach(el => {
+        el.classList.remove('selected');
+    });
+    
+    element.classList.add('selected');
+    
+    selectedTimeSlot = { start, end };
+    document.getElementById('durationSection').style.display = 'block';
+    updateBookingSummary();
+    document.getElementById('nextToPayment').disabled = false;
+    hideError('timeError');
+}
+
+function updateBookingSummary(){
+    if(!selectedTimeSlot || !selectedDate || !currentField) return;
+    
+    const duration = parseInt(document.getElementById('duration').value);
+    const totalPrice = currentField.price_per_hour * duration;
+    
+    document.getElementById('bookingSummary').style.display = 'block';
+    document.getElementById('summaryDetails').innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <p class="mb-2"><strong>الملعب:</strong> ${currentField.name}</p>
+                <p class="mb-2"><strong>التاريخ:</strong> ${selectedDate}</p>
+                <p class="mb-2"><strong>الوقت:</strong> ${selectedTimeSlot.start} - ${selectedTimeSlot.end}</p>
+            </div>
+            <div class="col-md-6">
+                <p class="mb-2"><strong>المدة:</strong> ${duration} ساعة</p>
+                <p class="mb-2"><strong>السعر:</strong> ${currentField.price_per_hour} درهم/ساعة</p>
+                <p class="mb-0"><strong>المبلغ الإجمالي:</strong> <span class="text-success fw-bold">${totalPrice} درهم</span></p>
+            </div>
+        </div>
+    `;
+    
+    bookingData = {
+        field_id: currentField.id,
+        field_name: currentField.name,
+        reservation_date: selectedDate,
+        start_time: selectedTimeSlot.start,
+        end_time: selectedTimeSlot.end,
+        duration: duration,
+        total_price: totalPrice
+    };
+}
+
+function nextToPayment(){
+    if(!selectedTimeSlot || !selectedDate){
+        showError('timeError', 'يرجى اختيار التاريخ والوقت أولاً');
+        return;
+    }
+    
+    document.getElementById('step1').classList.remove('active');
+    document.getElementById('step2').classList.add('active');
+    document.getElementById('step1-content').style.display = 'none';
+    document.getElementById('step2-content').style.display = 'block';
+}
+
+function backToBooking(){
+    document.getElementById('step2').classList.remove('active');
+    document.getElementById('step1').classList.add('active');
+    document.getElementById('step2-content').style.display = 'none';
+    document.getElementById('step1-content').style.display = 'block';
+}
+
+function selectPayment(method){
+    selectedPaymentMethod = method;
+    
+    document.getElementById('onlineCard').classList.remove('selected');
+    document.getElementById('cashCard').classList.remove('selected');
+    
+    document.getElementById(method + 'Card').classList.add('selected');
+    document.getElementById('onlinePaymentForm').style.display = method === 'online' ? 'block' : 'none';
+    document.getElementById('confirmPaymentBtn').disabled = false;
+    hideError('paymentError');
+}
+
+function processPayment(){
+    if(!selectedPaymentMethod){
+        showError('paymentError', 'يرجى اختيار طريقة الدفع');
+        return;
+    }
+
+    if(!bookingData.field_id || !bookingData.reservation_date || !bookingData.start_time || !bookingData.end_time) {
+        showError('paymentError', 'بيانات الحجز غير مكتملة');
+        return;
+    }
+
+    if(selectedPaymentMethod === 'online') {
+        if(!validateCardDetails()) {
+            return;
+        }
+    }
+
+    const formData = new FormData();
+    formData.append('action', 'create_booking');
+    formData.append('field_id', bookingData.field_id);
+    formData.append('reservation_date', bookingData.reservation_date);
+    formData.append('start_time', bookingData.start_time);
+    formData.append('end_time', bookingData.end_time);
+    formData.append('duration', bookingData.duration);
+    formData.append('total_price', bookingData.total_price);
+    formData.append('payment_method', selectedPaymentMethod);
+
+    const btn = document.getElementById('confirmPaymentBtn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>جاري المعالجة...';
+    btn.disabled = true;
+
+    fetch('php/booking_system.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success){
+            showConfirmation(data.data);
+        } else {
+            showError('paymentError', data.message);
+            btn.innerHTML = '<i class="fas fa-lock me-2"></i>تأكيد الحجز والدفع';
+            btn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('❌ خطأ في المعالجة:', error);
+        showError('paymentError', 'حدث خطأ في الاتصال بالخادم');
+        btn.innerHTML = '<i class="fas fa-lock me-2"></i>تأكيد الحجز والدفع';
+        btn.disabled = false;
+    });
+}
+
+function validateCardDetails() {
+    const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+    
+    if(cardNumber.length !== 16 || !/^\d+$/.test(cardNumber)) {
+        showError('cardError', 'يرجى إدخال رقم بطاقة صحيح (16 رقم)');
+        return false;
+    }
+
+    hideError('cardError');
+    return true;
+}
+
+function showConfirmation(booking){
+    document.getElementById('step2').classList.remove('active');
+    document.getElementById('step3').classList.add('active');
+    document.getElementById('step2-content').style.display = 'none';
+    document.getElementById('step3-content').style.display = 'block';
+
+    const bookingData = {
+        id: booking.id || Math.floor(Math.random() * 1000) + 1,
+        field_name: booking.field_name || currentField?.name || 'غير معروف',
+        reservation_date: booking.reservation_date || selectedDate || 'غير معروف',
+        start_time: booking.start_time || selectedTimeSlot?.start || 'غير معروف',
+        end_time: booking.end_time || selectedTimeSlot?.end || 'غير معروف',
+        total_price: booking.total_price || bookingData?.total_price || 0,
+        payment_method: booking.payment_method || selectedPaymentMethod || 'نقدي',
+        payment_status: booking.payment_status || (selectedPaymentMethod === 'online' ? 'paid' : 'pending')
+    };
+
+    document.getElementById('confirmationContent').innerHTML = `
+        <div class="alert alert-success">
+            <div class="text-center mb-4">
+                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                <h4 class="text-success">تم تأكيد الحجز بنجاح!</h4>
+            </div>
+            
+            <div class="confirmation-details bg-light p-4 rounded mb-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>رقم الحجز:</strong> #${bookingData.id}</p>
+                        <p class="mb-2"><strong>الملعب:</strong> ${bookingData.field_name}</p>
+                        <p class="mb-2"><strong>التاريخ:</strong> ${bookingData.reservation_date}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>الوقت:</strong> ${bookingData.start_time} - ${bookingData.end_time}</p>
+                        <p class="mb-2"><strong>المبلغ:</strong> ${bookingData.total_price} درهم</p>
+                        <p class="mb-2"><strong>طريقة الدفع:</strong> ${bookingData.payment_method === 'online' ? 'إلكتروني' : 'نقدي'}</p>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <p class="mb-0"><strong>حالة الدفع:</strong> 
+                            <span class="badge ${bookingData.payment_status === 'paid' ? 'bg-success' : 'bg-warning'} fs-6">
+                                ${bookingData.payment_status === 'paid' ? 'مدفوع' : 'في انتظار الدفع'}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <button class="btn btn-success me-2 mb-2" onclick="window.location.href='user_dashboard.html'">
+                    <i class="fas fa-tachometer-alt me-1"></i>لوحة التحكم
+                </button>
+                <button class="btn btn-outline-primary mb-2" onclick="window.location.href='map.html'">
+                    <i class="fas fa-home me-1"></i>العودة إلى الخريطة
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function showError(elementId, message) {
+    const element = document.getElementById(elementId);
+    element.textContent = message;
+    element.style.display = 'block';
+}
+
+function hideError(elementId) {
+    const element = document.getElementById(elementId);
+    element.style.display = 'none';
+}
+
+function showAlert(message, type = 'info') {
+    // هذه الدالة معطلة - لا تظهر أي إشعارات
+    return;
+}
+
+// تحسين إدخال بطاقة الائتمان
+document.getElementById('cardNumber')?.addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+    value = value.replace(/(\d{4})/g, '$1 ').trim();
+    e.target.value = value.substring(0, 19);
+});
+
+document.getElementById('cardExpiry')?.addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+    }
+    e.target.value = value.substring(0, 5);
+});
+
+document.getElementById('cardCvv')?.addEventListener('input', function(e) {
+    e.target.value = e.target.value.replace(/\D/g, '').substring(0, 3);
+});
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
