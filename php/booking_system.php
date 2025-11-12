@@ -1,5 +1,5 @@
 <?php
-// php/booking_system.php - النسخة المصححة للدفع الإلكتروني
+// php/booking_system.php 
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
